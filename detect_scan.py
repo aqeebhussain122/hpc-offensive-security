@@ -79,18 +79,20 @@ def detect_and_block():
 			
 		# Flush out the duplicates and block the offending IPs.
 		found_ips = list(set(found_ips))
-		os.system("ipset create BlockAddress hash:ip hashsize 4096 2>/dev/null")
+		#os.system("ipset create BlockAddress hash:ip hashsize 4096 2>/dev/null")
 	
 	for i in range(len(found_ips)):
 		print("Offending IP to be blocked: {}".format(found_ips[i]))
-		os.system("ipset add BlockAddress {} 2>/dev/null".format(found_ips[i]))
+		os.system("iptables -I INPUT -s {} -j DROP".format(found_ips[i]))
+		#os.system("ipset add BlockAddress {} 2>/dev/null".format(found_ips[i]))
 	
-	os.system("iptables -t raw -A PREROUTING -m set --match-set BlockAddress src -j DROP")
+	#os.system("iptables -t raw -A PREROUTING -m set --match-set BlockAddress src -j DROP")
 
 	if len(found_ips) == 0:
 		print("I found nothing for now, flushing previous ruleset.")
 		os.system("ipset -F")
 		return 0
+
 	start_time = time.time()
 	time_count = 120
 	while (time.time() - start_time) < 120:
@@ -98,9 +100,13 @@ def detect_and_block():
 		time.sleep(1)
 		print("Unblocking in: {}".format(time_count))
 
-	print("Clearing ipset rules")
-	os.system("ipset -F")
-	os.system("echo > /var/log/messages")
+	for i in range(len(found_ips)):
+		print("Deleting IPTables rules.")
+		os.system("iptables -D INPUT -s {} -j DROP".format(found_ips[i]))
+		print("Restarting IPTables.")
+		os.system("systemctl restart iptables")
+		print("Wiping log.")
+		os.system("echo > /var/log/messages")
 
 # Using datetime objects we do calculations.
 #new_timestamp = str(datetime.utcfromtimestamp(timestamp).strftime("%b %d %H:%M:%S.%f"))
