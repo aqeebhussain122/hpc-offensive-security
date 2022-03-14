@@ -1,6 +1,8 @@
 import os
+import sys
 import time
 from datetime import datetime
+from collections import Counter
 
 # Parse the lines and grab what is important
 def get_lines(keyword):
@@ -56,16 +58,64 @@ def get_lines(keyword):
 		#for i in range(len(log_lines)):
 		#	print(log_lines[i][1])
 				
-#	return log_lines
 
 # Compares the two timestamps.
 # https://stackoverflow.com/questions/4002598/how-to-get-the-previous-element-when-using-a-for-loop
 def detect_and_block():
 	# Counter of how many times an IP has appeared
 	counter = 0
-	# Separate list which logs the found IPs and try to attach the number of times they appeared in 5 minutes
+	# Primary list which logs the found IPs and try to attach the number of times they appeared in 5 minutes
 	found_ips = []
+	# IP addresses to be blocked
+	block_ips = []
+	# Times and IP address appearances
 	get_times = get_lines("IPT")
+	# Get a record of all IP addresses found making SYN connections
+	for i in range(len(get_times)):
+		found_ips.append(get_times[i][0])
+
+	# Count the appearance of each IP address. 
+	ip_count = Counter(found_ips)
+	print(ip_count)
+	# Access the number of packets tied to the IP as a dictionary.
+	for ip_addr, pkt in ip_count.items():
+		# If a value of higher than 100 is found
+		if pkt >= 100:
+			block_ips.append(ip_addr)
+	
+	# Quick check if the list to block IPs is empty then just exit early.
+	if len(block_ips) == 0:
+		sys.exit("There are no IP addresses to block right now.")
+	
+	for i in range(len(block_ips)):
+		print("IP Address(es) to block: \n{}".format(block_ips[i]))
+		# Place this rule above all other existing rules to block the IP trying to port scan.
+		os.system("iptables -I INPUT -s {} -j DROP".format(block_ips[i]))
+	
+	
+	# Temporary timer for which the blocking which will last.
+	start_time = time.time()
+	time_count = 120
+	while (time.time() - start_time) < 120:
+		time_count -= 1
+		time.sleep(1)
+		print("Unblocking in: {}".format(time_count))
+	
+	for i in range(len(block_ips)):
+		print("Unblocking device... ")
+		os.system("iptables -D INPUT -s {} -j DROP".format(found_ips[i]))
+		#print("Restarting IPTables.")
+		#os.system("systemctl restart iptables")
+		
+	print("Wiping log file")
+	os.system("echo > /var/log/messages")
+
+
+
+	#https://codefather.tech/blog/python-check-for-duplicates-in-list/
+	#for i in range(len(get_times)):
+		# Bind the apperance of the same IP address with a counter.
+	"""
 	for i in range(len(get_times)):
 		counter += 1
 		# Get the difference of time in which the SYN packet has came. 
@@ -107,6 +157,7 @@ def detect_and_block():
 		os.system("systemctl restart iptables")
 		print("Wiping log.")
 		os.system("echo > /var/log/messages")
+	"""
 
 # Using datetime objects we do calculations.
 #new_timestamp = str(datetime.utcfromtimestamp(timestamp).strftime("%b %d %H:%M:%S.%f"))
