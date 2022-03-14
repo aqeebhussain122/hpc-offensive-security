@@ -1,0 +1,8 @@
+s tcp any any -> any 22 (msg: "Ignore SSH traffic"; sid:1000001; rev:001;)
+alert tcp any any -> $HOME_NET any (msg: TCP SYN scan; flags:S; sid:10000002; rev:001;)
+alert tcp any any -> $HOME_NET any (msg: TCP FIN scan; flags:F; sid:10000003; rev:001;)
+alert tcp any any <> $HOME_NET any (msg: TCP port scanning; detection_filter:track by_src, count 30, seconds 60; sid:10000004; rev:001;) 
+alert tcp any any <> $HOME_NET 22 (msg: "SSH Detected";flow:established, to_server; content:"SSH-";sid:1000005;rev:1;classtype:not-suspicious)
+alert icmp any any -> $HOME_NET any (msg: Incoming Ping; sid:1000006; rev:001;)
+#alert icmp any any -> $HOME_NET any (msg: “Incoming Ping”;id s:10000002; rev:001; )
+#alert tcp any any -> $HOME_NET any (msg: "Adults list access attempt"; sid:10000003; rev:001;  react: block;)
