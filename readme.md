@@ -19,6 +19,6 @@ LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-To access the Client Side Attacks Presentation, please download this from Google Drive: https://docs.google.com/presentation/d/1ZBhnpL0adxNhl0IXYRV3IJqtVl2bNfN4/edit?usp=sharing&ouid=115923885052562060968&rtpof=true&sd=true
+To access the Client Side Attacks Presentation, please download this from Google Drive: https://docs.google.com/presentation/d/1zfbU56c1TuiNiyfvF1Zg9TJaIAMnqwet/edit?usp=sharing&ouid=113281899946571998224&rtpof=true&sd=true
 
 The slides could not be uploaded here because the file size was too large, it contains 2 demonstration videos of client side attacks.
